@@ -1,0 +1,110 @@
+<h1>{{ department.department_name }}</h1>
+<details>
+    <summary>Checked In Staff</summary>
+    <h3>Doctors ({{ checked_in_doctors|length }})</h3>
+    <ul>
+        {% for doc in checked_in_doctors %}
+            <li>Dr. {{ doc.doctor.employee.first_name }} {{ doc.doctor.employee.last_name }} — checked in {{ doc.doctor.checked_in_at }}</li>
+        {% empty %}
+            <li>No doctors checked in.</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Nurses ({{ checked_in_nurses|length }})</h3>
+    <ul>
+        {% for n in checked_in_nurses %}
+            <li>{{ n.nurse.employee.first_name }} {{ n.nurse.employee.last_name }} — Shift: {{ n.shift }} — checked in {{ n.nurse.checked_in_at }}</li>
+        {% empty %}
+            <li>No nurses checked in.</li>
+        {% endfor %}
+    </ul>
+</details>
+
+<details>
+    <summary>Checked Out Staff</summary>
+
+    <h3>Doctors</h3>
+    <ul>
+        {% for doc in checked_out_doctors %}
+            <li>Dr. {{ doc.doctor.employee.first_name }} {{ doc.doctor.employee.last_name }} — checked in {{ doc.doctor.checked_in_at }}, checked out {{ doc.doctor.checked_out_at }}</li>
+        {% empty %}
+            <li>No doctors checked out.</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Nurses</h3>
+    <ul>
+        {% for n in checked_out_nurses %}
+            <li>{{ n.nurse.employee.first_name }} {{ n.nurse.employee.last_name }} — Shift: {{ n.shift }} — checked in {{ n.nurse.checked_in_at }}, checked out {{ n.nurse.checked_out_at }}</li>
+        {% empty %}
+            <li>No nurses checked out.</li>
+        {% endfor %}
+    </ul>
+</details>
+
+<p><a href="{% url 'admin_department_list' %}">&larr; Back to departments</a></p>
+
+{% if error %}<p style="color:red">{{ error }}</p>{% endif %}
+
+<h2>Edit Department Name</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="edit_department">
+    <label>Name: <input type="text" name="department_name" value="{{ department.department_name }}"></label>
+    <button type="submit">Save</button>
+</form>
+
+<h2>Doctors</h2>
+<table border="1" cellpadding="6" cellspacing="0">
+    <tr><th>Name</th><th>Speciality</th><th></th></tr>
+    {% for doc in doctors %}
+    <tr>
+        <td>Dr. {{ doc.doctor.employee.first_name }} {{ doc.doctor.employee.last_name }}</td>
+        <td>{{ doc.speciality }}</td>
+        <td>
+            <form method="post" action="{% url 'remove_department_member' department.pk doc.doctor.pk %}" style="display:inline">
+                {% csrf_token %}
+                <button type="submit">Remove</button>
+            </form>
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3">No doctors in this department.</td></tr>
+    {% endfor %}
+</table>
+
+<h2>Nurses</h2>
+<table border="1" cellpadding="6" cellspacing="0">
+    <tr><th>Name</th><th>Shift</th><th></th></tr>
+    {% for n in nurses %}
+    <tr>
+        <td>{{ n.nurse.employee.first_name }} {{ n.nurse.employee.last_name }}</td>
+        <td>{{ n.shift }}</td>
+        <td>
+            <form method="post" action="{% url 'remove_department_member' department.pk n.nurse.pk %}" style="display:inline">
+                {% csrf_token %}
+                <button type="submit">Remove</button>
+            </form>
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3">No nurses in this department.</td></tr>
+    {% endfor %}
+</table>
+
+<h2>Add Member</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="add_member">
+    <label>Employee:
+        <select name="employee_id" required>
+            {% for e in available_employees %}
+                <option value="{{ e.pk }}">
+                    {{ e.employee.first_name }} {{ e.employee.last_name }}
+                    {% if e.doctor_profile %}(Doctor - {{ e.doctor_profile.speciality }}){% elif e.nurse_profile %}(Nurse - {{ e.nurse_profile.shift }}){% endif %}
+                </option>
+            {% endfor %}
+        </select>
+    </label>
+    <button type="submit">Add to Department</button>
+</form>

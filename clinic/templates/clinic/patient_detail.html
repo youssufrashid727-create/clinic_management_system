@@ -1,0 +1,63 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Patient {{ patient.pk }}{% endblock %}
+{% block content %}
+<h1>Patient {{ patient.pk }}</h1>
+
+<p><a href="{% url 'doctor_patient_vaccinations' patient.pk %}" data-ajax>View / Record Vaccinations</a></p>
+<p><a href="{% url 'doctor_patient_referrals' patient.pk %}" data-ajax>View / Create Referrals</a></p>
+<a href="{% url 'doctor_patient_treatment_plans' patient.pk %}" data-ajax>View / Create Treatment Plans</a>
+
+<h2>Basic Info</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="edit_patient">
+    <label>
+        Blood type:
+        <input type="text" name="blood_type" value="{{ patient.blood_type }}" maxlength="3">
+    </label>
+    <button type="submit">Save</button>
+</form>
+
+<h2>Medical Records</h2>
+{% for record in records %}
+    <div class="card">
+        <strong>{{ record.visit_date|default:"No date" }}</strong><br>
+        Diagnosis: {{ record.diagnosis|default:"—" }}<br>
+        Prescription: {{ record.prescription|default:"—" }}<br>
+        Dosage: {{ record.dosage|default:"—" }}<br>
+        Allergies: {{ record.allergies|default:"—" }}<br>
+        Hereditary: {{ record.hereditary_diseases|default:"—" }}<br>
+
+        <h4>Images</h4>
+        {% for img in record.images.all %}
+            <img src="{{ img.image.url }}" style="max-width: 200px; margin: 5px;">
+        {% empty %}
+            <p>No images attached.</p>
+        {% endfor %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="add_image">
+            <input type="hidden" name="record_id" value="{{ record.pk }}">
+            <input type="file" name="images" multiple accept="image/*">
+            <button type="submit">Add Images</button>
+        </form>
+    </div>
+{% empty %}
+    <p>No records yet.</p>
+{% endfor %}
+
+<h2>Add Medical Record</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="add_record">
+    <label>Visit date: <input type="date" name="visit_date"></label>
+    <label>Diagnosis: <input type="text" name="diagnosis"></label>
+    <label>Prescription: <input type="text" name="prescription"></label>
+    <label>Dosage: <input type="text" name="dosage"></label>
+    <label>Allergies: <input type="text" name="allergies"></label>
+    <label>Hereditary diseases: <input type="text" name="hereditary_diseases"></label>
+    <label>Images: <input type="file" name="images" multiple accept="image/*"></label>
+    <button type="submit">Add Record</button>
+</form>
+{% endblock %}

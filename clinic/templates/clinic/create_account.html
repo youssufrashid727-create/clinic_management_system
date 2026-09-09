@@ -1,0 +1,89 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Create Account{% endblock %}
+{% block content %}
+<h1>Create a New Account</h1>
+
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+<form method="post" id="create-account-form">
+    {% csrf_token %}
+
+    <h2>Basic Info</h2>
+    <label>First name: <input type="text" name="first_name" required></label>
+    <label>Last name: <input type="text" name="last_name" required></label>
+    <label>Age: <input type="number" name="age" required></label>
+    <label>Address: <input type="text" name="address" required></label>
+    <label>Phone number: <input type="text" name="phone_number" maxlength="11" required></label>
+    <label>
+        Sex:
+        <select name="sex" required>
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+        </select>
+    </label>
+
+    <h2>Login</h2>
+    <label>Username: <input type="text" name="username" required></label>
+    <label>Email: <input type="email" name="email" required></label>
+    <label>Password: <input type="password" name="password" required></label>
+
+    <h2>Role</h2>
+    <label>
+        Role:
+        <select name="role" id="role-select" required onchange="updateRoleFields()">
+            <option value="Admin">Admin</option>
+            <option value="Doctor">Doctor</option>
+            <option value="Nurse">Nurse</option>
+            <option value="Patient">Patient</option>
+        </select>
+    </label>
+
+    <div id="employee-fields" style="display: none;">
+        <h3>Employee Info</h3>
+        <label>Salary: <input type="number" name="salary"></label>
+        <label>Employment day: <input type="date" name="employment_day"></label>
+        <label>Department:
+            <select name="department">
+                <option value="">-- Select department --</option>
+                {% for d in departments %}
+                    <option value="{{ d.department_id }}">{{ d.department_name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+
+    <div id="doctor-fields" style="display: none;">
+        <h3>Doctor Info</h3>
+        <label>Speciality: <input type="text" name="speciality"></label>
+        <label>Available day: <input type="datetime-local" name="available_day"></label>
+    </div>
+
+    <div id="nurse-fields" style="display: none;">
+        <h3>Nurse Info</h3>
+        <label>License number: <input type="text" name="license_num"></label>
+        <label>Shift: <input type="text" name="shift"></label>
+    </div>
+
+    <div id="patient-fields" style="display: none;">
+        <h3>Patient Info</h3>
+        <label>Blood type: <input type="text" name="blood_type" maxlength="3" placeholder="e.g. O+"></label>
+    </div>
+
+    <button type="submit">Create Account</button>
+</form>
+
+<script>
+    function updateRoleFields() {
+        const role = document.getElementById('role-select').value;
+        document.getElementById('employee-fields').style.display =
+            (role === 'Doctor' || role === 'Nurse') ? 'block' : 'none';
+        document.getElementById('doctor-fields').style.display =
+            (role === 'Doctor') ? 'block' : 'none';
+        document.getElementById('nurse-fields').style.display =
+            (role === 'Nurse') ? 'block' : 'none';
+        document.getElementById('patient-fields').style.display =
+            (role === 'Patient') ? 'block' : 'none';
+    }
+    updateRoleFields();
+</script>
+{% endblock %}

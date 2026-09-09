@@ -1,0 +1,22 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Nurse Dashboard{% endblock %}
+{% block content %}
+<h1>Welcome, {{ nurse.nurse.employee.first_name }} {{ nurse.nurse.employee.last_name }}</h1>
+
+<form method="post" action="{% url 'toggle_checkin' %}">
+    {% csrf_token %}
+    {% if nurse.nurse.is_checked_in %}
+        <p>Status: Checked in at {{ nurse.nurse.checked_in_at }}</p>
+        <button type="submit">Check Out</button>
+    {% else %}
+        <p>Status: Not checked in</p>
+        <button type="submit">Check In</button>
+    {% endif %}
+</form>
+
+<div class="card">
+    <p>Shift: {{ nurse.shift }}</p>
+    <p>License #: {{ nurse.license_num }}</p>
+    <p>Department: {{ nurse.nurse.department.department_name|default:"—" }}</p>
+</div>
+{% endblock %}

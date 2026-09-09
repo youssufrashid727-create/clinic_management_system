@@ -1,0 +1,49 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Patient {{ patient.pk }}{% endblock %}
+{% block content %}
+<h1>{{ patient.patient.first_name }} {{ patient.patient.last_name }}</h1>
+
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+<h2>Basic Info</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="edit_patient">
+    <label>Blood type: <input type="text" name="blood_type" value="{{ patient.blood_type }}" maxlength="3"></label>
+    <button type="submit">Save</button>
+</form>
+
+<h2>Assign to Doctor</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="assign_doctor">
+    <label>Doctor:
+        <select name="doctor_id" required>
+            {% for d in doctors %}
+                <option value="{{ d.pk }}">Dr. {{ d.doctor.employee.first_name }} {{ d.doctor.employee.last_name }} ({{ d.speciality }})</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>Date/time: <input type="datetime-local" name="scheduled_time" required></label>
+    <label>Reason: <input type="text" name="reason"></label>
+    <button type="submit">Assign</button>
+</form>
+
+<h2>Appointment History</h2>
+<table>
+    <tr>
+        <th>When</th>
+        <th>Doctor</th>
+        <th>Status</th>
+    </tr>
+    {% for a in appointments %}
+    <tr>
+        <td>{{ a.scheduled_time }}</td>
+        <td>Dr. {{ a.doctor.doctor.employee.first_name }} {{ a.doctor.doctor.employee.last_name }}</td>
+        <td>{{ a.status|default:"—" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3">No appointments yet.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

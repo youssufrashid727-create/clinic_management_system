@@ -1,0 +1,9 @@
+<h1>Delete Doctor</h1>
+
+<p>Are you sure you want to permanently delete Dr. {{ doctor.doctor.employee.first_name }} {{ doctor.doctor.employee.last_name }}? This removes their entire account (login, employee record, and doctor record) and cannot be undone.</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Yes, delete</button>
+</form>
+<a href="{% url 'admin_doctor_list' %}">Cancel</a>

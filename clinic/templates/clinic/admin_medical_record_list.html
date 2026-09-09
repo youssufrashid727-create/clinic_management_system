@@ -1,0 +1,38 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Medical Records{% endblock %}
+{% block content %}
+<h1>Medical Records</h1>
+
+<form method="get">
+    <label for="doctor">Filter by doctor:</label>
+    <select name="doctor" id="doctor" onchange="this.form.submit()">
+        <option value="">All doctors</option>
+        {% for doc in all_doctors %}
+            <option value="{{ doc.pk }}" {% if doc.pk|stringformat:"s" == selected_doctor %}selected{% endif %}>
+                Dr. {{ doc.doctor.employee.first_name }} {{ doc.doctor.employee.last_name }} ({{ doc.speciality }})
+            </option>
+        {% endfor %}
+    </select>
+</form>
+
+<table>
+    <tr>
+        <th>Visit Date</th>
+        <th>Patient</th>
+        <th>Doctor</th>
+        <th>Diagnosis</th>
+        <th></th>
+    </tr>
+    {% for record in records %}
+    <tr>
+        <td>{{ record.visit_date|default:"—" }}</td>
+        <td>{{ record.patient.patient.first_name }} {{ record.patient.patient.last_name }}</td>
+        <td>{% if record.doctor %}Dr. {{ record.doctor.doctor.employee.first_name }} {{ record.doctor.doctor.employee.last_name }}{% else %}—{% endif %}</td>
+        <td>{{ record.diagnosis|default:"—" }}</td>
+        <td><a href="{% url 'admin_medical_record_detail' record.pk %}" data-ajax>View / Edit</a></td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No medical records found.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

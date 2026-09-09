@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, {{ patient.patient.first_name }} {{ patient.patient.last_name }}</h1>
+    <p>Blood type: {{ patient.blood_type }}</p>
+
+    <h2>My Appointments</h2>
+    <table border="1" cellpadding="6" cellspacing="0">
+        <tr>
+            <th>When</th>
+            <th>Doctor</th>
+            <th>Reason</th>
+            <th>Status</th>
+        </tr>
+        {% for appt in appointments %}
+        <tr>
+            <td>{{ appt.scheduled_time|default:"Not set" }}</td>
+            <td>Dr. {{ appt.doctor.doctor.employee.last_name }} ({{ appt.doctor.speciality }})</td>
+            <td>{{ appt.reason|default:"-" }}</td>
+            <td>{{ appt.status|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No appointments yet.</td></tr>
+        {% endfor %}
+    </table>
+
+    <h2>My Medical Records</h2>
+    <ul>
+        {% for record in records %}
+        <li>
+            <strong>{{ record.visit_date|default:"No date" }}</strong> -
+            Diagnosis: {{ record.diagnosis|default:"-" }},
+            Prescription: {{ record.prescription|default:"-" }},
+            Dosage: {{ record.dosage|default:"-" }},
+            Allergies: {{ record.allergies|default:"-" }},
+            Hereditary: {{ record.hereditary_diseases|default:"-" }}
+        </li>
+        {% empty %}
+        <li>No records yet.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

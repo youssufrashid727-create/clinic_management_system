@@ -1,0 +1,26 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Appointments{% endblock %}
+{% block content %}
+<h1>Appointments</h1>
+
+<table>
+    <tr>
+        <th>Patient</th>
+        <th>Doctor</th>
+        <th>Time</th>
+        <th>Status</th>
+        <th></th>
+    </tr>
+    {% for a in appointments %}
+    <tr>
+        <td>{{ a.patient.patient.first_name }} {{ a.patient.patient.last_name }}</td>
+        <td>Dr. {{ a.doctor.doctor.employee.first_name }} {{ a.doctor.doctor.employee.last_name }}</td>
+        <td>{{ a.scheduled_time }}</td>
+        <td>{{ a.status }}</td>
+        <td><a href="{% url 'appointment_detail' a.pk %}" data-ajax>View</a></td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No appointments found.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

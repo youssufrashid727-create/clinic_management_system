@@ -1,0 +1,34 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Sick Leave{% endblock %}
+{% block content %}
+<h1>Sick Leave Requests</h1>
+
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+<h2>Request Sick Leave</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Start date: <input type="date" name="start_date" required></label>
+    <label>End date: <input type="date" name="end_date" required></label>
+    <label>Reason: <input type="text" name="reason"></label>
+    <button type="submit">Submit Request</button>
+</form>
+
+<h2>My Requests</h2>
+<table>
+    <tr>
+        <th>Dates</th>
+        <th>Reason</th>
+        <th>Status</th>
+    </tr>
+    {% for leave in my_leaves %}
+    <tr>
+        <td>{{ leave.start_date }} to {{ leave.end_date }}</td>
+        <td>{{ leave.reason|default:"—" }}</td>
+        <td>{{ leave.status }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3">No requests yet.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

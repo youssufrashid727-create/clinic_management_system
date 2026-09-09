@@ -1,0 +1,22 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Patients{% endblock %}
+{% block content %}
+<h1>Patients</h1>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Blood Type</th>
+        <th></th>
+    </tr>
+    {% for p in patients %}
+    <tr>
+        <td>{{ p.patient.first_name }} {{ p.patient.last_name }}</td>
+        <td>{{ p.blood_type|default:"—" }}</td>
+        <td><a href="{% url 'nurse_patient_detail' p.pk %}" data-ajax>View / Edit</a></td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3">No patients found.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Clinic Management{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'clinic/style.css' %}">
+</head>
+<body>
+    <header>
+        <a href="{% url 'dashboard' %}">Clinic Management</a>
+        <nav>
+            {% if request.session.person_id %}
+                <a href="{% url 'logout' %}">Logout</a>
+            {% endif %}
+        </nav>
+    </header>
+
+     <div class="layout">
+        {% if request.person.role == 'Admin' %}
+        <nav class="sidebar">
+            <div class="section-label">Staff</div>
+            <a href="{% url 'admin_employee_list' %}" data-ajax>Employees</a>
+            <a href="{% url 'create_account' %}" data-ajax>Create Account</a>
+            <a href="{% url 'admin_sick_leave_list' %}" data-ajax>Sick Leaves</a>
+
+            <div class="section-label">Departments</div>
+            <a href="{% url 'admin_department_list' %}" data-ajax>Manage Departments</a>
+            <a href="{% url 'department_visit_stats' %}" data-ajax>Visit Stats</a>
+
+            <div class="section-label">Patients & Care</div>
+            <a href="{% url 'admin_appointment_list' %}" data-ajax>Appointments</a>
+            <a href="{% url 'admin_medical_record_list' %}" data-ajax>Medical Records</a>
+
+            <div class="section-label">Finance</div>
+            <a href="{% url 'admin_billing_list' %}" data-ajax>Billing</a>
+        </nav>
+        {% elif request.person.role == 'Doctor' %}
+        <nav class="sidebar">
+            <div class="section-label">My Work</div>
+            <a href="{% url 'dashboard' %}" data-ajax>My Schedule</a>
+            <a href="{% url 'request_sick_leave' %}" data-ajax>Sick Leave</a>
+        </nav>
+    {% elif request.person.role == 'Nurse' %}
+    <nav class="sidebar">
+    <div class="section-label">My Work</div>
+    <a href="{% url 'dashboard' %}" data-ajax>My Dashboard</a>
+    <a href="{% url 'nurse_patient_list' %}" data-ajax>Patients</a>
+    <a href="{% url 'nurse_add_patient' %}" data-ajax>Add Patient</a>
+    <a href="{% url 'request_sick_leave' %}" data-ajax>Sick Leave</a>
+</nav>
+        {% endif %}
+
+        <main id="page-content" class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+       <script>
+        function loadPage(url) {
+            fetch(url)
+                .then(r => r.text())
+                .then(html => {
+                    const doc = new DOMParser().parseFromString(html, 'text/html');
+                    const newContent = doc.getElementById('page-content');
+                    if (newContent) {
+                        const container = document.getElementById('page-content');
+                        container.innerHTML = newContent.innerHTML;
+                        document.title = doc.title;
+
+                        // Re-run any <script> tags, since innerHTML injection doesn't execute them
+                        container.querySelectorAll('script').forEach(oldScript => {
+                            const newScript = document.createElement('script');
+                            if (oldScript.src) {
+                                newScript.src = oldScript.src;
+                            } else {
+                                newScript.textContent = oldScript.textContent;
+                            }
+                            oldScript.parentNode.replaceChild(newScript, oldScript);
+                        });
+                    } else {
+                        window.location.href = url;
+                    }
+                });
+        }
+
+        document.addEventListener('click', function (e) {
+            const link = e.target.closest('a[data-ajax]');
+            if (!link) return;
+            e.preventDefault();
+            history.pushState({}, '', link.href);
+            loadPage(link.href);
+        });
+
+        window.addEventListener('popstate', function () {
+            loadPage(location.href);
+        });
+    </script>

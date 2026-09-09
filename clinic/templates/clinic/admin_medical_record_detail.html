@@ -1,0 +1,24 @@
+<h1>Medical Record #{{ record.record_id }}</h1>
+<h2>Images</h2>
+{% for img in record.images.all %}
+    <img src="{{ img.image.url }}" style="max-width: 300px; margin: 5px;">
+{% empty %}
+    <p>No images attached.</p>
+{% endfor %}
+<p><a href="{% url 'admin_medical_record_list' %}">&larr; Back to medical records</a></p>
+
+{% if error %}<p style="color:red">{{ error }}</p>{% endif %}
+
+<p><strong>Patient:</strong> {{ record.patient.patient.first_name }} {{ record.patient.patient.last_name }}</p>
+<p><strong>Doctor:</strong> {% if record.doctor %}Dr. {{ record.doctor.doctor.employee.first_name }} {{ record.doctor.doctor.employee.last_name }}{% else %}—{% endif %}</p>
+
+<form method="post">
+    {% csrf_token %}
+    <label>Visit date: <input type="date" name="visit_date" value="{{ record.visit_date|date:'Y-m-d' }}"></label><br>
+    <label>Diagnosis: <input type="text" name="diagnosis" value="{{ record.diagnosis }}"></label><br>
+    <label>Prescription: <input type="text" name="prescription" value="{{ record.prescription }}"></label><br>
+    <label>Dosage: <input type="text" name="dosage" value="{{ record.dosage }}"></label><br>
+    <label>Allergies: <input type="text" name="allergies" value="{{ record.allergies }}"></label><br>
+    <label>Hereditary diseases: <input type="text" name="hereditary_diseases" value="{{ record.hereditary_diseases }}"></label><br>
+    <button type="submit">Save Changes</button>
+</form>

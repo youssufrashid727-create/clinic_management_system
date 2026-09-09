@@ -1,0 +1,89 @@
+{% extends 'clinic/base.html' %}
+{% block title %}My Schedule{% endblock %}
+{% block content %}
+<h1>My Appointments</h1>
+
+<form method="post" action="{% url 'toggle_checkin' %}">
+    {% csrf_token %}
+    {% if doctor.doctor.is_checked_in %}
+        <p>Status: Checked in at {{ doctor.doctor.checked_in_at }}</p>
+        <button type="submit">Check Out</button>
+    {% else %}
+        <p>Status: Not checked in</p>
+        <button type="submit">Check In</button>
+    {% endif %}
+</form>
+
+<h2>Today's Appointments</h2>
+<table>
+    <tr>
+        <th>Time</th>
+        <th>Patient</th>
+        <th>Status</th>
+    </tr>
+    {% for appt in todays_appointments %}
+    <tr>
+        <td>{{ appt.scheduled_time|time }}</td>
+        <td>{{ appt.patient.patient.first_name }} {{ appt.patient.patient.last_name }}</td>
+        <td>{{ appt.status|default:"—" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3">No appointments today.</td></tr>
+    {% endfor %}
+</table>
+
+<table>
+    <tr>
+        <th>When</th>
+        <th>Patient</th>
+        <th>Reason</th>
+        <th>Status</th>
+        <th>Note</th>
+        <th>Update</th>
+    </tr>
+    {% for appt in appointments %}
+    <tr>
+        <td>{{ appt.scheduled_time|default:"Not set" }}</td>
+        <td><a href="{% url 'doctor_patient_detail' appt.patient.pk %}" data-ajax>{{ appt.patient.patient.first_name }} {{ appt.patient.patient.last_name }}</a></td>
+        <td>{{ appt.reason|default:"—" }}</td>
+        <td>{{ appt.status|default:"—" }}</td>
+        <td>{{ appt.note|default:"—" }}</td>
+        <td>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="update_status">
+                <input type="hidden" name="appointment_id" value="{{ appt.pk }}">
+                <select name="status">
+                    <option value="scheduled" {% if appt.status == "scheduled" %}selected{% endif %}>Scheduled</option>
+                    <option value="complete" {% if appt.status == "complete" %}selected{% endif %}>Complete</option>
+                    <option value="canceled" {% if appt.status == "canceled" %}selected{% endif %}>Canceled</option>
+                </select>
+                <textarea name="note" placeholder="Doctor's note">{{ appt.note }}</textarea>
+                <button type="submit">Save</button>
+            </form>
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="6">No appointments yet.</td></tr>
+    {% endfor %}
+</table>
+
+<h2>Schedule a New Appointment</h2>
+
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="schedule_new">
+    <label>Patient:
+        <select name="patient_id" required>
+            {% for p in patients %}
+                <option value="{{ p.pk }}">{{ p.patient.first_name }} {{ p.patient.last_name }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>Date/time: <input type="datetime-local" name="scheduled_time" required></label>
+    <label>Reason: <input type="text" name="reason"></label>
+    <button type="submit">Schedule</button>
+</form>
+{% endblock %}

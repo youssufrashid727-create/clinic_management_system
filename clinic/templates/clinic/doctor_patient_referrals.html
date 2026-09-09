@@ -1,0 +1,65 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Referrals{% endblock %}
+{% block content %}
+<h1>Referrals — {{ patient.patient.first_name }} {{ patient.patient.last_name }}</h1>
+<p><a href="{% url 'doctor_patient_detail' patient.pk %}" data-ajax>&larr; Back to patient</a></p>
+
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+<table>
+    <tr>
+        <th>Date</th>
+        <th>Referred To</th>
+        <th>Reason</th>
+        <th>Status</th>
+    </tr>
+    {% for r in referrals %}
+    <tr>
+        <td>{{ r.referral_date }}</td>
+        <td>
+            {% if r.referred_to_doctor %}
+                Dr. {{ r.referred_to_doctor.doctor.employee.first_name }} {{ r.referred_to_doctor.doctor.employee.last_name }} ({{ r.referred_to_doctor.speciality }})
+            {% else %}
+                {{ r.external_doctor_name }}{% if r.external_facility %} — {{ r.external_facility }}{% endif %} (external)
+            {% endif %}
+        </td>
+        <td>{{ r.reason|default:"—" }}</td>
+        <td>{{ r.status }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">No referrals yet.</td></tr>
+    {% endfor %}
+</table>
+
+<h2>Create Referral</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>
+        <input type="radio" name="referral_type" value="internal" checked onchange="document.getElementById('internal-fields').style.display='block';document.getElementById('external-fields').style.display='none';">
+        Refer to a doctor in this hospital
+    </label>
+    <label>
+        <input type="radio" name="referral_type" value="external" onchange="document.getElementById('internal-fields').style.display='none';document.getElementById('external-fields').style.display='block';">
+        Refer to an outside doctor/facility
+    </label>
+
+    <div id="internal-fields">
+        <label>Doctor:
+            <select name="referred_to_doctor">
+                <option value="">-- Select doctor --</option>
+                {% for d in other_doctors %}
+                    <option value="{{ d.pk }}">Dr. {{ d.doctor.employee.first_name }} {{ d.doctor.employee.last_name }} ({{ d.speciality }})</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+
+    <div id="external-fields" style="display:none;">
+        <label>External doctor name: <input type="text" name="external_doctor_name"></label>
+        <label>Facility: <input type="text" name="external_facility"></label>
+    </div>
+
+    <label>Reason: <input type="text" name="reason"></label>
+    <button type="submit">Create Referral</button>
+</form>
+{% endblock %}

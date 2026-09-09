@@ -1,0 +1,57 @@
+<h1>Appointment #{{ appointment.appointment_id }}</h1>
+<p><a href="{% url 'admin_appointment_list' %}">&larr; Back to appointments</a></p>
+
+<div style="display: flex; gap: 30px; flex-wrap: wrap;">
+
+    <div style="border: 1px solid #ccc; padding: 15px; min-width: 250px;">
+        <h2>Patient</h2>
+        <p><strong>{{ appointment.patient.patient.first_name }} {{ appointment.patient.patient.last_name }}</strong></p>
+        <p>Blood type: {{ appointment.patient.blood_type }}</p>
+        <p>Phone: {{ appointment.patient.patient.phone_number }}</p>
+        <p>Email: {{ appointment.patient.patient.email }}</p>
+        {% if appointment.patient.guardian %}
+            <p>Guardian: {{ appointment.patient.guardian.patient.first_name }} {{ appointment.patient.guardian.patient.last_name }}</p>
+        {% endif %}
+    </div>
+
+    <div style="border: 1px solid #ccc; padding: 15px; min-width: 250px;">
+        <h2>Doctor</h2>
+        <p><strong>Dr. {{ appointment.doctor.doctor.employee.first_name }} {{ appointment.doctor.doctor.employee.last_name }}</strong></p>
+        <p>Speciality: {{ appointment.doctor.speciality }}</p>
+        <p>Department: {{ appointment.doctor.doctor.department.department_name|default:"—" }}</p>
+        <p>Phone: {{ appointment.doctor.doctor.employee.phone_number }}</p>
+    </div>
+
+</div>
+
+<h2>Appointment Details</h2>
+<p>Time: {{ appointment.scheduled_time }}</p>
+<p>Status: {{ appointment.status }}
+    {% if appointment.status == "complete" %}
+        <a href="{% url 'admin_billing_list' %}?patient_id={{ appointment.patient.pk }}&appointment_id={{ appointment.pk }}" data-ajax>Create Bill</a>
+    {% endif %}
+</p>
+<p>Reason: {{ appointment.reason|default:"—" }}</p>
+<p>Doctor's note: {{ appointment.note|default:"—" }}</p>
+
+<h2>Medical Record</h2>
+{% for record in medical_records %}
+    <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 10px;">
+        <p>Visit date: {{ record.visit_date }}</p>
+        <p>Diagnosis: {{ record.diagnosis|default:"—" }}</p>
+        <p>Prescription: {{ record.prescription|default:"—" }}</p>
+        <p>Dosage: {{ record.dosage|default:"—" }}</p>
+        <p>Allergies: {{ record.allergies|default:"—" }}</p>
+        <p>Hereditary diseases: {{ record.hereditary_diseases|default:"—" }}</p>
+    </div>
+{% empty %}
+    <p>No medical record found for this appointment.</p>
+{% endfor %}
+
+<h2>Billing</h2>
+{% if billing %}
+    <p>Amount: {{ billing.total_amount }}</p>
+    <p>Status: {{ billing.payment_status }}</p>
+{% else %}
+    <p>No billing record found for this appointment.</p>
+{% endif %}

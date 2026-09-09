@@ -1,0 +1,38 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Vaccinations{% endblock %}
+{% block content %}
+<h1>Vaccinations — {{ patient.patient.first_name }} {{ patient.patient.last_name }}</h1>
+<p><a href="{% url 'doctor_patient_detail' patient.pk %}" data-ajax>&larr; Back to patient</a></p>
+
+<table>
+    <tr>
+        <th>Vaccine</th>
+        <th>Dose</th>
+        <th>Date Given</th>
+        <th>Next Due</th>
+        <th>Notes</th>
+    </tr>
+    {% for v in vaccinations %}
+    <tr>
+        <td>{{ v.vaccine_name }}</td>
+        <td>{{ v.dose_number|default:"—" }}</td>
+        <td>{{ v.date_administered }}</td>
+        <td>{{ v.next_due_date|default:"—" }}</td>
+        <td>{{ v.notes|default:"—" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No vaccinations recorded.</td></tr>
+    {% endfor %}
+</table>
+
+<h2>Record Vaccination</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Vaccine name: <input type="text" name="vaccine_name" required></label>
+    <label>Dose number: <input type="number" name="dose_number"></label>
+    <label>Date administered: <input type="date" name="date_administered" required></label>
+    <label>Next due date: <input type="date" name="next_due_date"></label>
+    <label>Notes: <input type="text" name="notes"></label>
+    <button type="submit">Record</button>
+</form>
+{% endblock %}

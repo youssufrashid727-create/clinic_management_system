@@ -1,0 +1,42 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Treatment Plans{% endblock %}
+{% block content %}
+<h1>Treatment Plans — {{ patient.patient.first_name }} {{ patient.patient.last_name }}</h1>
+<p><a href="{% url 'doctor_patient_detail' patient.pk %}" data-ajax>&larr; Back to patient</a></p>
+
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+{% for plan in plans %}
+    <div class="card">
+        <p><strong>Diagnosis:</strong> {{ plan.diagnosis|default:"—" }}</p>
+        <p><strong>Details:</strong> {{ plan.plan_details|default:"—" }}</p>
+        <p><strong>Dates:</strong> {{ plan.start_date }} to {{ plan.end_date|default:"ongoing" }}</p>
+        <p><strong>Status:</strong> {{ plan.status }}</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="update_status">
+            <input type="hidden" name="plan_id" value="{{ plan.pk }}">
+            <select name="status">
+                <option value="active" {% if plan.status == "active" %}selected{% endif %}>Active</option>
+                <option value="completed" {% if plan.status == "completed" %}selected{% endif %}>Completed</option>
+                <option value="discontinued" {% if plan.status == "discontinued" %}selected{% endif %}>Discontinued</option>
+            </select>
+            <button type="submit">Update Status</button>
+        </form>
+    </div>
+{% empty %}
+    <p>No treatment plans yet.</p>
+{% endfor %}
+
+<h2>Add Treatment Plan</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="add_plan">
+    <label>Diagnosis: <input type="text" name="diagnosis"></label>
+    <label>Plan details: <textarea name="plan_details"></textarea></label>
+    <label>Start date: <input type="date" name="start_date" required></label>
+    <label>End date (optional): <input type="date" name="end_date"></label>
+    <button type="submit">Add Plan</button>
+</form>
+{% endblock %}

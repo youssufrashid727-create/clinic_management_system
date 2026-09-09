@@ -1,0 +1,42 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Add Patient{% endblock %}
+{% block content %}
+<h1>Add Patient</h1>
+
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <h2>Patient Info</h2>
+    <label>First name: <input type="text" name="first_name" required></label>
+    <label>Last name: <input type="text" name="last_name" required></label>
+    <label>Age: <input type="number" name="age" required></label>
+    <label>Address: <input type="text" name="address" required></label>
+    <label>Phone number: <input type="text" name="phone_number" maxlength="11" required></label>
+    <label>
+        Sex:
+        <select name="sex" required>
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+        </select>
+    </label>
+    <label>Username: <input type="text" name="username" required></label>
+    <label>Email: <input type="email" name="email" required></label>
+    <label>Password: <input type="password" name="password" required></label>
+    <label>Blood type: <input type="text" name="blood_type" maxlength="3" placeholder="e.g. O+"></label>
+
+    <h2>Assign to Doctor (optional)</h2>
+    <label>Doctor:
+        <select name="doctor_id">
+            <option value="">-- No doctor yet --</option>
+            {% for d in doctors %}
+                <option value="{{ d.pk }}">Dr. {{ d.doctor.employee.first_name }} {{ d.doctor.employee.last_name }} ({{ d.speciality }})</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>Date/time: <input type="datetime-local" name="scheduled_time"></label>
+    <label>Reason: <input type="text" name="reason"></label>
+
+    <button type="submit">Add Patient</button>
+</form>
+{% endblock %}

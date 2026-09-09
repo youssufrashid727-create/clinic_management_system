@@ -1,0 +1,46 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<h1>Welcome, {{ person.first_name }} {{ person.last_name }}</h1>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">{{ doctor_count }}</div>
+        <div class="stat-label">Doctors</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ nurse_count }}</div>
+        <div class="stat-label">Nurses</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ patient_count }}</div>
+        <div class="stat-label">Patients</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ todays_appointment_count }}</div>
+        <div class="stat-label">Today's Appointments</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 style="margin-top:0">Today's Appointments</h2>
+    <table>
+        <tr>
+            <th>Time</th>
+            <th>Doctor</th>
+            <th>Patient</th>
+            <th>Status</th>
+        </tr>
+        {% for appt in todays_appointments %}
+        <tr>
+            <td>{{ appt.scheduled_time|time }}</td>
+            <td>Dr. {{ appt.doctor.doctor.employee.first_name }} {{ appt.doctor.doctor.employee.last_name }}</td>
+            <td>{{ appt.patient.patient.first_name }} {{ appt.patient.patient.last_name }}</td>
+            <td>{{ appt.status|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No appointments today.</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

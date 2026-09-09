@@ -1,0 +1,64 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Billing{% endblock %}
+{% block content %}
+<h1>Billing</h1>
+
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+<h2>Create Bill</h2>
+{% if prefill_doctor_name %}
+    <p>Billing for appointment with <strong>{{ prefill_doctor_name }}</strong></p>
+{% endif %}
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="create_billing">
+    <input type="hidden" name="appointment_id" value="{{ prefill_appointment_id }}">
+    <input type="hidden" name="payment_status" value="pending">
+    <label>Patient:
+        <select name="patient_id" required>
+            {% for p in all_patients %}
+                <option value="{{ p.pk }}" {% if p.pk|stringformat:"s" == prefill_patient_id %}selected{% endif %}>{{ p.patient.first_name }} {{ p.patient.last_name }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>Amount: <input type="number" step="0.01" name="total_amount" required></label>
+    <button type="submit">Create Bill</button>
+</form>
+
+<h2>Filter</h2>
+<form method="get">
+    <label for="status">Appointment status:</label>
+    <select name="status" id="status">
+        <option value="">All</option>
+        <option value="scheduled" {% if selected_status == "scheduled" %}selected{% endif %}>Scheduled</option>
+        <option value="complete" {% if selected_status == "complete" %}selected{% endif %}>Complete</option>
+        <option value="canceled" {% if selected_status == "canceled" %}selected{% endif %}>Canceled</option>
+    </select>
+
+    <label for="patient_name">Patient name:</label>
+    <input type="text" name="patient_name" id="patient_name" value="{{ patient_name }}" placeholder="Search by name">
+
+    <button type="submit">Filter</button>
+</form>
+
+<table>
+    <tr>
+        <th>Bill ID</th>
+        <th>Patient</th>
+        <th>Appointment Status</th>
+        <th>Amount</th>
+        <th>Payment Status</th>
+    </tr>
+    {% for bill in billings %}
+    <tr>
+        <td>{{ bill.bill_id }}</td>
+        <td>{{ bill.receiver.patient.first_name }} {{ bill.receiver.patient.last_name }}</td>
+        <td>{{ bill.appointment.status|default:"—" }}</td>
+        <td>{{ bill.total_amount }}</td>
+        <td>{{ bill.payment_status }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No billing records found.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

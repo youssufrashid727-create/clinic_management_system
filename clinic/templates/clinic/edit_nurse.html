@@ -1,0 +1,35 @@
+<h1>Edit Nurse</h1>
+
+{% if error %}<p style="color:red">{{ error }}</p>{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <label>First name: <input type="text" name="first_name" value="{{ person.first_name }}"></label><br>
+    <label>Last name: <input type="text" name="last_name" value="{{ person.last_name }}"></label><br>
+    <label>Age: <input type="number" name="age" value="{{ person.age }}"></label><br>
+    <label>Address: <input type="text" name="address" value="{{ person.address }}"></label><br>
+    <label>Phone: <input type="text" name="phone_number" value="{{ person.phone_number }}"></label><br>
+    <label>Sex:
+        <select name="sex">
+            <option value="M" {% if person.sex == 'M' %}selected{% endif %}>Male</option>
+            <option value="F" {% if person.sex == 'F' %}selected{% endif %}>Female</option>
+        </select>
+    </label><br>
+    <label>Username: <input type="text" name="username" value="{{ person.username }}"></label><br>
+    <label>Email: <input type="email" name="email" value="{{ person.email }}"></label><br>
+    <label>Salary: <input type="number" name="salary" value="{{ employee.salary }}"></label><br>
+    <label>Employment day: <input type="date" name="employment_day" value="{{ employee.employment_day|date:'Y-m-d' }}"></label><br>
+    <label>Department:
+        <select name="department">
+            <option value="">-- Select department --</option>
+            {% for d in departments %}
+                <option value="{{ d.department_id }}" {% if employee.department_id == d.department_id %}selected{% endif %}>{{ d.department_name }}</option>
+            {% endfor %}
+        </select>
+    </label><br>
+    <label>License number: <input type="text" name="license_num" value="{{ nurse.license_num }}"></label><br>
+    <label>Shift: <input type="text" name="shift" value="{{ nurse.shift }}"></label><br>
+    <button type="submit">Save Changes</button>
+</form>
+
+<p><a href="{% url 'admin_nurse_list' %}">Cancel</a></p>

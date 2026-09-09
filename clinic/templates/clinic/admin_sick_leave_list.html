@@ -1,0 +1,51 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Sick Leave Requests{% endblock %}
+{% block content %}
+<h1>Sick Leave Requests</h1>
+
+<form method="get">
+    <label for="status">Status:</label>
+    <select name="status" id="status" onchange="this.form.submit()">
+        <option value="pending" {% if selected_status == "pending" %}selected{% endif %}>Pending</option>
+        <option value="approved" {% if selected_status == "approved" %}selected{% endif %}>Approved</option>
+        <option value="rejected" {% if selected_status == "rejected" %}selected{% endif %}>Rejected</option>
+        <option value="" {% if selected_status == "" %}selected{% endif %}>All</option>
+    </select>
+</form>
+
+<table>
+    <tr>
+        <th>Employee</th>
+        <th>Dates</th>
+        <th>Reason</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+    {% for leave in leaves %}
+    <tr>
+        <td>{{ leave.employee.employee.first_name }} {{ leave.employee.employee.last_name }}</td>
+        <td>{{ leave.start_date }} to {{ leave.end_date }}</td>
+        <td>{{ leave.reason|default:"—" }}</td>
+        <td>{{ leave.status }}</td>
+        <td>
+            {% if leave.status == "pending" %}
+            <form method="post" style="display:inline">
+                {% csrf_token %}
+                <input type="hidden" name="leave_id" value="{{ leave.pk }}">
+                <input type="hidden" name="action" value="approved">
+                <button type="submit">Approve</button>
+            </form>
+            <form method="post" style="display:inline">
+                {% csrf_token %}
+                <input type="hidden" name="leave_id" value="{{ leave.pk }}">
+                <input type="hidden" name="action" value="rejected">
+                <button type="submit">Reject</button>
+            </form>
+            {% endif %}
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No sick leave requests found.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

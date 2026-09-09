@@ -1,0 +1,37 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Doctors{% endblock %}
+{% block content %}
+<h1>Doctors</h1>
+
+<form method="get">
+    <label for="speciality">Filter by speciality:</label>
+    <select name="speciality" id="speciality" onchange="this.form.submit()">
+        <option value="">All specialities</option>
+        {% for s in all_specialities %}
+            <option value="{{ s }}" {% if s == selected_speciality %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+    </select>
+</form>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Speciality</th>
+        <th>Available Day</th>
+        <th>Actions</th>
+    </tr>
+    {% for doctor in doctors %}
+    <tr>
+        <td>Dr. {{ doctor.doctor.employee.first_name }} {{ doctor.doctor.employee.last_name }}</td>
+        <td>{{ doctor.speciality }}</td>
+        <td>{{ doctor.available_day }}</td>
+        <td>
+            <a href="{% url 'edit_doctor' doctor.pk %}" data-ajax>Edit</a> |
+            <a href="{% url 'delete_doctor' doctor.pk %}" data-ajax>Delete</a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">No doctors found.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

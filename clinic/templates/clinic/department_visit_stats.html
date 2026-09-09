@@ -1,0 +1,42 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Visit Stats by Department{% endblock %}
+{% block content %}
+<h1>Visits by Month per Department</h1>
+
+{% if not has_data %}
+    <p>No medical records with a visit date and department found yet.</p>
+{% else %}
+    <canvas id="visitChart" style="max-width: 900px;"></canvas>
+{% endif %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+    const monthLabels = {{ month_labels|safe }};
+    const datasets = {{ datasets|safe }};
+
+    const colors = ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'];
+    datasets.forEach((ds, i) => {
+        ds.backgroundColor = colors[i % colors.length];
+    });
+
+    if (monthLabels.length > 0) {
+        new Chart(document.getElementById('visitChart'), {
+            type: 'bar',
+            data: {
+                labels: monthLabels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: { display: true, text: 'Medical Record Visits by Month' }
+                },
+                scales: {
+                    x: { stacked: false },
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}
